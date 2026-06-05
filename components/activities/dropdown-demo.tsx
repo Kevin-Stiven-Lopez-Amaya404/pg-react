@@ -7,7 +7,9 @@ import { courseOptions } from '@/constants/activity-data';
 import { palette } from '@/constants/design';
 
 /*
-  Actividad de dropdown.
+  Punto 3: Dropdown Android/iOS.
+  Ubicacion de este punto: components/activities/dropdown-demo.tsx
+
   Permite seleccionar un tema de una lista de opciones.
 */
 export function DropdownDemo() {

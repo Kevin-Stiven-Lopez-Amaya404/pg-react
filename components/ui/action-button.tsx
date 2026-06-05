@@ -30,6 +30,7 @@ export function ActionButton({ label, onPress, icon, variant = 'primary' }: Acti
           name={icon}
           size={19}
           color={isPrimary ? palette.surface : palette.primary}
+          style={styles.icon}
         />
       )}
       <Text style={[styles.text, isPrimary ? styles.primaryText : styles.secondaryText]}>{label}</Text>
@@ -42,10 +43,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
+    flexShrink: 1,
     gap: 8,
     minHeight: 44,
+    minWidth: 0,
     paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: radius.md,
+  },
+  icon: {
+    flexShrink: 0,
   },
   primary: {
     backgroundColor: palette.primary,
@@ -62,8 +69,10 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   text: {
+    flexShrink: 1,
     fontSize: 15,
     fontWeight: '700',
+    textAlign: 'center',
   },
   primaryText: {
     color: palette.surface,

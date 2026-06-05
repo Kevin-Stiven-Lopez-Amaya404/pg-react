@@ -13,6 +13,21 @@ export const palette = {
   overlay: 'rgba(12, 22, 20, 0.45)',
 };
 
+export const darkPalette = {
+  background: '#101615',
+  surface: '#17201e',
+  surfaceMuted: '#21302d',
+  border: '#2f4540',
+  borderStrong: '#55706a',
+  text: '#f4fbf9',
+  textMuted: '#b6c7c3',
+  primary: '#3dd6c6',
+  primaryDark: '#24aa9d',
+  accent: '#75a7ff',
+  danger: '#ff8a80',
+  overlay: 'rgba(0, 0, 0, 0.62)',
+};
+
 export const radius = {
   sm: 6,
   md: 8,

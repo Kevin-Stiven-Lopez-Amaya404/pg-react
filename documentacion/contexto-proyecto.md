@@ -1,234 +1,240 @@
-# Contexto del proyecto
+# Documentacion del proyecto
 
-## Funcion general del codigo
+## 1. Resumen general
 
-Este proyecto es una aplicacion creada con Expo, React Native y Expo Router. Su objetivo principal es demostrar varias funcionalidades comunes en una app movil: botones, manejo de estado, modales, dropdowns, calculadora, scroll con carga dinamica y navegacion entre pantallas.
+Este proyecto es una aplicacion desarrollada con Expo, React Native y Expo Router.
 
-La aplicacion funciona como una guia practica de actividades. En la pantalla principal se muestran diferentes secciones, y cada una representa una funcionalidad especifica de React Native.
+La aplicacion funciona como una guia de actividades practicas donde se demuestran varios conceptos importantes del desarrollo movil:
 
-En resumen, el codigo permite:
+- Uso de botones.
+- Dialogos y modales.
+- Dropdown o selector de opciones.
+- Calculadora basica.
+- Scroll con carga dinamica.
+- Navegacion entre pantallas.
+- Perfil editable.
+- Configuracion funcional con idioma y tema claro/oscuro.
 
-- Mostrar una interfaz organizada por actividades.
-- Cambiar informacion en pantalla usando estados.
-- Ejecutar acciones con botones.
-- Abrir y cerrar modales.
-- Seleccionar opciones con un dropdown.
-- Realizar operaciones matematicas basicas.
-- Cargar mas elementos al hacer scroll.
-- Navegar entre pantallas usando tabs, stack y menu lateral.
+La pantalla principal se llama `Actividad stiven` y muestra las actividades en forma de tarjetas.
 
-## Que se hizo en el proyecto
+## 2. Arquitectura utilizada
 
-Se tomo una base de Expo y se transformo en una aplicacion mas completa, organizada y visualmente consistente.
+La arquitectura usada es una arquitectura basada en componentes, propia de React Native.
 
-Los cambios principales fueron:
+El proyecto esta organizado por responsabilidades:
 
-- Se configuro la navegacion principal con `expo-router`.
-- Se crearon pestañas inferiores para navegar entre Home, Perfil y Configuracion.
-- Se agrego una pantalla de Detalle.
-- Se agrego una pantalla Modal.
-- Se creo un contenedor reutilizable llamado `AppShell`.
-- Se crearon componentes reutilizables para botones, tarjetas y dropdowns.
-- Se separaron las actividades en componentes individuales.
-- Se centralizaron colores, espaciados y bordes en constantes de diseno.
+- `app/`: contiene las pantallas y la configuracion de rutas.
+- `app/(tabs)/`: contiene las pantallas que pertenecen al menu inferior.
+- `components/activities/`: contiene cada actividad separada en su propio componente.
+- `components/ui/`: contiene componentes reutilizables de interfaz.
+- `components/app-shell.tsx`: contiene la estructura visual general de las pantallas.
+- `contexts/`: contiene el estado global de preferencias.
+- `constants/`: contiene datos, colores y valores reutilizables.
+- `hooks/`: contiene hooks auxiliares del proyecto base.
 
-## Estructura principal
+Esta organizacion permite separar la logica por partes. La pantalla principal no tiene toda la logica mezclada, sino que importa componentes como `ButtonsDemo`, `ModalDemo`, `CalculatorCard` y `NavigationDemo`.
 
-### `app/_layout.tsx`
+## 3. Patron principal aplicado
 
-Este archivo define la navegacion principal de la aplicacion usando `Stack`.
+El patron principal usado es composicion de componentes.
 
-Aqui se registran:
+Esto significa que la interfaz se construye uniendo piezas pequenas:
+
+- `AppShell` da la estructura general.
+- `SectionCard` crea tarjetas para cada actividad.
+- `ActionButton` crea botones reutilizables.
+- `DropdownSelect` crea selectores de opciones.
+- Cada archivo en `components/activities/` representa una actividad independiente.
+
+Ejemplo:
+
+`app/(tabs)/index.tsx` no crea cada boton, modal o calculadora directamente. Solo organiza los componentes:
+
+- `<ButtonsDemo />`
+- `<ModalDemo />`
+- `<DropdownDemo />`
+- `<CalculatorCard />`
+- `<ScrollLoadingList />`
+- `<NavigationDemo />`
+
+Esto hace que el codigo sea mas limpio y facil de explicar.
+
+## 4. Navegacion utilizada
+
+La navegacion se maneja con Expo Router.
+
+Expo Router usa la estructura de carpetas para crear rutas. Cada archivo dentro de `app/` representa una pantalla o grupo de pantallas.
+
+### Stack Navigation
+
+Archivo principal: `app/_layout.tsx`
+
+Aqui se define un `Stack`, que permite abrir pantallas encima de otras.
+
+Pantallas registradas:
 
 - `(tabs)`: grupo de pantallas con menu inferior.
 - `detail`: pantalla de detalle.
-- `modal`: pantalla que se presenta como modal.
+- `modal`: pantalla configurada como modal.
 
-Tambien se configura el tema claro u oscuro y la barra de estado.
+El `Stack` permite abrir rutas como:
 
-### `app/(tabs)/_layout.tsx`
+- `/detail`
+- `/modal`
 
-Este archivo define las pestañas inferiores de la aplicacion.
+### Bottom Tabs
 
-Las pestañas son:
+Archivo: `app/(tabs)/_layout.tsx`
+
+Aqui se define el menu inferior de la aplicacion.
+
+Las tabs son:
 
 - Home.
 - Perfil.
 - Configuracion.
 
-Cada pestaña tiene un icono usando `MaterialIcons`.
+Cada pestana tiene un icono de `MaterialIcons`.
 
-### `app/(tabs)/index.tsx`
+### Drawer lateral
 
-Esta es la pantalla principal de la app. Aqui se muestran todas las actividades dentro de un `ScrollView`.
+Archivo: `components/app-shell.tsx`
 
-Las actividades que se cargan son:
+El menu lateral no usa una libreria externa. Se implemento con un `Modal` de React Native.
 
-- Uso de botones.
-- Modal.
-- Dropdown.
-- Calculadora.
-- Scroll loading.
-- Navegacion.
+El boton superior abre el drawer y desde ahi se puede navegar a:
 
-Tambien se detecta cuando el usuario llega al final del scroll para cargar mas elementos en la lista dinamica.
+- Home.
+- Perfil.
+- Configuracion.
+- Detalle.
 
-## Actividades implementadas
+### Navegacion programatica
 
-### 1. Uso de botones
+Se usa `router.push()` de Expo Router.
 
-Archivo: `components/activities/buttons-demo.tsx`
+Ejemplos:
 
-Esta actividad muestra botones que responden al evento `onPress`.
+- `router.push('/detail')`
+- `router.push('/modal')`
+- `router.back()`
 
-Tiene tres acciones:
+Esto permite navegar desde botones y funciones.
 
-- Saludar.
-- Cambiar el texto.
-- Ir a la pantalla de detalle.
+## 5. Estado global
 
-Aqui se usa `useState` para guardar y actualizar el mensaje que se muestra en pantalla.
+Archivo: `contexts/app-preferences.tsx`
 
-### 2. Dialog o Modal
+Se creo un contexto global llamado `AppPreferencesProvider`.
 
-Archivo: `components/activities/modal-demo.tsx`
+Este contexto guarda preferencias de la aplicacion:
 
-Esta actividad muestra como abrir y cerrar un modal usando estado.
+- Idioma actual.
+- Tema actual: claro u oscuro.
+- Colores activos.
+- Traducciones.
 
-El modal usa el componente nativo `Modal` de React Native. Cuando el usuario presiona el boton, el estado `visible` cambia a `true`, y cuando se cierra vuelve a `false`.
+Tambien expone funciones para modificar esas preferencias:
 
-### 3. Dropdown Android/iOS
+- `setLanguage()`
+- `setLanguageByLabel()`
+- `setThemeMode()`
+- `t()`, que devuelve textos segun el idioma seleccionado.
 
-Archivo: `components/activities/dropdown-demo.tsx`
+Gracias a este contexto, cuando se cambia el idioma en Configuracion, cambian textos en otras partes de la app. Y cuando se cambia el tema, tambien cambia la apariencia general.
 
-Esta actividad permite seleccionar un tema de una lista de opciones.
-
-Las opciones vienen desde `constants/activity-data.ts`.
-
-Se usa un componente personalizado llamado `DropdownSelect`, que abre un modal con las opciones y marca la opcion seleccionada.
-
-### 4. Calculadora basica
-
-Archivo: `components/activities/calculator-card.tsx`
-
-Esta actividad permite ingresar dos numeros y seleccionar una operacion:
-
-- Suma.
-- Resta.
-- Multiplicacion.
-- Division.
-
-El resultado se calcula con una funcion llamada `calculate`.
-
-Tambien se validan errores, por ejemplo:
-
-- Si los campos estan vacios.
-- Si los valores no son numeros.
-- Si se intenta dividir entre cero.
-
-### 5. Scroll Loading
-
-Archivo: `components/activities/scroll-loading-list.tsx`
-
-Esta actividad muestra una lista de registros. Al bajar hasta el final, se cargan mas elementos.
-
-La funcion `shouldLoadMore` verifica si el usuario ya esta cerca del final del scroll.
-
-Tambien se usa `ActivityIndicator` para mostrar una animacion de carga mientras se agregan nuevos registros.
-
-### 6. Navegacion
-
-Archivo: `components/activities/navigation-demo.tsx`
-
-Esta actividad explica y demuestra la navegacion de la app.
-
-La aplicacion usa:
-
-- `Stack`, para abrir pantallas como Detalle.
-- `Bottom Tabs`, para moverse entre Home, Perfil y Configuracion.
-- Menu lateral, creado dentro del componente `AppShell`.
-
-## Pantallas adicionales
-
-### Perfil
-
-Archivo: `app/(tabs)/profile.tsx`
-
-Muestra una pantalla simple de perfil con un icono, texto descriptivo y un boton para ir a Detalle.
-
-Sirve para demostrar el cambio de pantalla usando el menu inferior.
-
-### Configuracion
+## 6. Configuracion funcional
 
 Archivo: `app/(tabs)/settings.tsx`
 
-Muestra opciones configurables usando switches.
+La pantalla de Configuracion permite modificar preferencias reales de la app.
 
-Tiene dos estados:
+Funciones implementadas:
 
-- Notificaciones.
-- Modo compacto.
+- Seleccionar idioma.
+- Cambiar entre modo claro y modo oscuro.
+- Activar o desactivar notificaciones.
+- Ver el estado actual de las preferencias.
 
-Cuando el usuario cambia un switch, el texto de estado actual tambien se actualiza.
+Idiomas disponibles:
 
-### Detalle
+- Espanol.
+- Ingles.
+- Frances.
+- Portugues.
 
-Archivo: `app/detail.tsx`
+El selector de idioma usa `DropdownSelect`. Cuando el usuario escoge un idioma, se llama `setLanguageByLabel()` y el contexto actualiza los textos.
 
-Esta pantalla se abre encima de las pestañas usando navegacion tipo Stack.
+El modo claro/oscuro usa botones segmentados. Cuando el usuario selecciona un modo, se llama `setThemeMode()`, y los colores cambian en la aplicacion.
 
-Incluye un boton para regresar usando `router.back()`.
+## 7. Tema claro y oscuro
 
-### Modal informativo
+Archivo: `constants/design.ts`
 
-Archivo: `app/modal.tsx`
+Se definieron dos paletas de colores:
 
-Esta pantalla esta configurada como modal dentro del Stack principal.
+- `palette`: colores del modo claro.
+- `darkPalette`: colores del modo oscuro.
 
-Sirve para mostrar que Expo Router tambien permite presentar pantallas completas como modales.
+El contexto decide cual usar segun `themeMode`.
 
-## Componentes reutilizables
+Ejemplo:
+
+- Si `themeMode` es `light`, se usa `palette`.
+- Si `themeMode` es `dark`, se usa `darkPalette`.
+
+Componentes como `AppShell`, `DropdownSelect`, `ProfileScreen` y `SettingsScreen` usan `colors` desde el contexto para cambiar de apariencia.
+
+## 8. Componentes principales
 
 ### `AppShell`
 
 Archivo: `components/app-shell.tsx`
 
-Es el contenedor general de varias pantallas. Incluye:
+Es el contenedor general de varias pantallas.
 
-- Area segura con `SafeAreaView`.
-- Encabezado con titulo y subtitulo.
-- Boton para abrir menu lateral.
-- Drawer lateral creado con `Modal`.
+Incluye:
 
-Este componente ayuda a que varias pantallas tengan la misma estructura visual.
+- `SafeAreaView` para respetar zonas seguras del dispositivo.
+- Header con titulo y subtitulo.
+- Boton de menu.
+- Drawer lateral.
+- Area para renderizar el contenido de cada pantalla.
+
+Tambien usa el contexto de preferencias para cambiar colores y textos segun el idioma y el tema.
 
 ### `ActionButton`
 
 Archivo: `components/ui/action-button.tsx`
 
-Es un boton reutilizable con icono, texto y variantes visuales.
+Es un boton reutilizable.
 
-Sus variantes son:
+Recibe:
+
+- `label`: texto del boton.
+- `icon`: icono opcional.
+- `variant`: estilo visual.
+- `onPress`: funcion que se ejecuta al presionar.
+
+Variantes disponibles:
 
 - `primary`.
 - `soft`.
 - `outline`.
 
-Esto evita repetir codigo cada vez que se necesita un boton.
-
 ### `SectionCard`
 
 Archivo: `components/ui/section-card.tsx`
 
-Es una tarjeta reutilizable para mostrar cada actividad.
+Es una tarjeta reutilizable para agrupar cada actividad.
 
 Recibe:
 
-- Titulo.
-- Descripcion.
-- Contenido interno.
+- `title`.
+- `description`.
+- `children`.
 
-Permite que todas las actividades mantengan una apariencia uniforme.
+Sirve para mantener una interfaz uniforme.
 
 ### `DropdownSelect`
 
@@ -236,49 +242,295 @@ Archivo: `components/ui/dropdown-select.tsx`
 
 Es un selector personalizado.
 
-Muestra el valor actual y, al presionarlo, abre un modal con las opciones disponibles.
+Funciona con un `Modal` que muestra una lista de opciones. Cuando el usuario selecciona una opcion, llama a `onSelect()`.
 
-## Constantes importantes
+Se usa en:
 
-### `constants/design.ts`
+- La actividad de dropdown.
+- La pantalla de Configuracion para elegir idioma.
 
-Este archivo guarda valores reutilizables de diseno:
+## 9. Actividades implementadas
 
-- Colores.
-- Radios de borde.
-- Espaciados.
+### 1. Uso de botones
 
-Esto permite mantener una interfaz consistente y facilita cambiar el estilo de toda la aplicacion desde un solo lugar.
+Archivo: `components/activities/buttons-demo.tsx`
+
+Demuestra el uso de botones y eventos `onPress`.
+
+Funciones:
+
+- Cambiar un mensaje con `useState`.
+- Mostrar respuesta visual al usuario.
+- Navegar a la pantalla de detalle.
+
+Conceptos aplicados:
+
+- Estado local.
+- Eventos.
+- Reutilizacion de `ActionButton`.
+
+### 2. Dialogo o Modal
+
+Archivo: `components/activities/modal-demo.tsx`
+
+Demuestra como abrir y cerrar un modal nativo de React Native.
+
+Usa:
+
+- `useState` para controlar si el modal esta visible.
+- `Modal` de React Native.
+- `ActionButton` para abrir y cerrar.
+
+### 3. Dropdown
+
+Archivo: `components/activities/dropdown-demo.tsx`
+
+Permite seleccionar una opcion de una lista.
+
+Usa:
+
+- `DropdownSelect`.
+- Estado local para guardar la opcion seleccionada.
+- Datos desde `constants/activity-data.ts`.
+
+### 4. Calculadora basica
+
+Archivo: `components/activities/calculator-card.tsx`
+
+Permite ingresar dos numeros y realizar:
+
+- Suma.
+- Resta.
+- Multiplicacion.
+- Division.
+
+Tambien valida:
+
+- Campos vacios.
+- Valores no numericos.
+- Division entre cero.
+
+Usa `useMemo` para recalcular el resultado solo cuando cambian los valores o la operacion.
+
+### 5. Scroll Loading
+
+Archivo: `components/activities/scroll-loading-list.tsx`
+
+Muestra una lista dinamica de registros.
+
+Funciones:
+
+- Inicia con 12 elementos.
+- Carga 6 elementos mas cuando el usuario llega al final.
+- Muestra un `ActivityIndicator` mientras carga.
+
+Tambien expone la funcion `loadMore()` hacia el componente padre usando `forwardRef` y `useImperativeHandle`.
+
+### 6. Navegacion
+
+Archivo: `components/activities/navigation-demo.tsx`
+
+Demuestra la navegacion de la app.
+
+Incluye:
+
+- Boton para ir a `/detail`.
+- Boton para abrir `/modal`.
+- Indicadores visuales de rutas.
+
+Conceptos aplicados:
+
+- Navegacion con `router.push()`.
+- Stack Navigation.
+- Modal screen.
+- Bottom Tabs.
+- Drawer lateral.
+
+## 10. Pantallas principales
+
+### Home
+
+Archivo: `app/(tabs)/index.tsx`
+
+Es la pantalla principal.
+
+Funciones:
+
+- Muestra todas las actividades.
+- Usa `ScrollView`.
+- Detecta cuando el usuario llega al final del scroll.
+- Llama `loadMore()` en la lista dinamica.
+- Abre `/detail` y `/modal` desde funciones compartidas.
+
+### Perfil
+
+Archivo: `app/(tabs)/profile.tsx`
+
+Muestra un perfil editable.
+
+Campos:
+
+- Nombre.
+- Correo.
+- Programa.
+- Ciudad.
+
+Cada campo usa `TextInput` y `useState`. Al cambiar un campo, tambien se actualiza el resumen superior del perfil.
+
+### Configuracion
+
+Archivo: `app/(tabs)/settings.tsx`
+
+Permite cambiar preferencias funcionales.
+
+Opciones:
+
+- Idioma.
+- Apariencia clara u oscura.
+- Notificaciones.
+
+Esta pantalla se comunica con `contexts/app-preferences.tsx`.
+
+### Detalle
+
+Archivo: `app/detail.tsx`
+
+Pantalla abierta por Stack.
+
+Tiene:
+
+- Header.
+- Texto explicativo.
+- Boton para regresar con `router.back()`.
+
+### Modal informativo
+
+Archivo: `app/modal.tsx`
+
+Pantalla configurada como modal dentro del Stack principal.
+
+Tiene:
+
+- Titulo.
+- Texto.
+- Boton para cerrar con `router.back()`.
+
+## 11. Datos y constantes
 
 ### `constants/activity-data.ts`
 
-Este archivo guarda datos usados por las actividades:
+Guarda datos reutilizables:
 
 - Opciones del dropdown.
 - Operaciones de la calculadora.
-- Funcion para crear elementos de lista.
+- Funcion `createListItems()` para crear registros de la lista dinamica.
 
-Separar estos datos ayuda a que los componentes no tengan informacion repetida dentro del mismo archivo.
+### `constants/design.ts`
 
-## Explicacion corta para exposicion
+Guarda valores de diseno:
 
-Una forma sencilla de explicar el proyecto seria:
+- Colores claros.
+- Colores oscuros.
+- Radios de borde.
+- Espaciados.
 
-> Esta aplicacion fue desarrollada con Expo y React Native. Su funcion es demostrar diferentes conceptos importantes del desarrollo movil, como manejo de estado, eventos, modales, dropdowns, calculos, carga dinamica de listas y navegacion entre pantallas. El codigo esta dividido en componentes reutilizables para que sea mas organizado, facil de leer y facil de mantener.
+Esto evita repetir valores en muchos archivos.
 
-## Que se puede destacar ante el profesor
+## 12. Principios SOLID
 
-Se puede destacar que el proyecto aplica buenas practicas como:
+SOLID es un conjunto de principios de diseno orientado a objetos, pero algunas ideas tambien pueden aplicarse a componentes en React.
 
-- Separar pantallas y componentes.
-- Reutilizar botones, tarjetas y estructuras visuales.
-- Usar constantes para mantener el diseno ordenado.
-- Manejar estado con `useState`.
-- Optimizar calculos simples con `useMemo`.
-- Usar `expo-router` para la navegacion.
-- Usar validaciones en la calculadora.
-- Crear una lista que carga mas datos de forma dinamica.
+En este proyecto se aplican parcialmente, especialmente en la separacion de responsabilidades.
 
-## Conclusion
+### S: Single Responsibility Principle
 
-El proyecto no es solo una pantalla estatica. Es una aplicacion funcional que muestra interaccion real con el usuario, navegacion entre pantallas, manejo de datos y componentes reutilizables. Esto demuestra una base solida de React Native y Expo para construir aplicaciones moviles mas completas.
+Si se aplica.
+
+Cada componente tiene una responsabilidad clara:
+
+- `ButtonsDemo`: maneja la actividad de botones.
+- `ModalDemo`: maneja el modal.
+- `CalculatorCard`: maneja la calculadora.
+- `ScrollLoadingList`: maneja la lista dinamica.
+- `NavigationDemo`: maneja la actividad de navegacion.
+- `ActionButton`: solo representa botones reutilizables.
+- `SectionCard`: solo representa tarjetas.
+- `AppShell`: solo da estructura general de pantalla.
+
+### O: Open/Closed Principle
+
+Se aplica parcialmente.
+
+Por ejemplo, `ActionButton` permite variantes visuales sin reescribir el componente.
+
+Tambien `DropdownSelect` puede recibir distintas listas de opciones y usarse en diferentes lugares.
+
+### L: Liskov Substitution Principle
+
+No aplica de forma directa.
+
+Este principio se usa mas en herencia de clases. El proyecto usa componentes funcionales y composicion, no clases con herencia.
+
+### I: Interface Segregation Principle
+
+Se aplica parcialmente.
+
+Las props de los componentes son pequenas y especificas.
+
+Ejemplos:
+
+- `NavigationDemo` solo recibe `onOpenDetail` y `onOpenModal`.
+- `ActionButton` solo recibe lo necesario para renderizar un boton.
+- `DropdownSelect` recibe solo datos y funciones relacionadas con seleccion.
+
+### D: Dependency Inversion Principle
+
+Se aplica parcialmente.
+
+Algunos componentes reciben funciones desde afuera en vez de decidir todo internamente.
+
+Ejemplo:
+
+- `NavigationDemo` no llama directamente a `router.push()`.
+- Recibe `onOpenDetail` y `onOpenModal` desde `HomeScreen`.
+
+Esto hace que el componente dependa de una funcion externa, no de una implementacion fija.
+
+## 13. Buenas practicas aplicadas
+
+El proyecto aplica varias buenas practicas:
+
+- Separacion de pantallas y componentes.
+- Componentes reutilizables.
+- Estado local con `useState`.
+- Estado global con Context API.
+- Navegacion con Expo Router.
+- Uso de constantes para colores y datos.
+- Validaciones en la calculadora.
+- Diseno responsive con `ScrollView`, `flexWrap` y `useWindowDimensions`.
+- Uso de `SafeAreaView` para evitar recortes en dispositivos.
+- Documentacion dentro del codigo con comentarios por apartados.
+
+## 14. Explicacion corta para exponer
+
+Una explicacion sencilla seria:
+
+> La aplicacion fue construida con Expo, React Native y Expo Router. Se uso una arquitectura basada en componentes, separando pantallas, actividades, componentes reutilizables, constantes y contexto global. La navegacion combina Stack, Bottom Tabs y un drawer lateral hecho con Modal. Tambien se implemento una configuracion funcional que cambia el idioma y el tema claro u oscuro en toda la app. Se aplican buenas practicas como separacion de responsabilidades, reutilizacion de componentes y manejo de estado local y global.
+
+## 15. Conclusion
+
+El proyecto demuestra una base completa de React Native con Expo.
+
+No es una pantalla estatica, sino una aplicacion funcional con:
+
+- Interacciones.
+- Navegacion.
+- Formularios.
+- Modales.
+- Estado local.
+- Estado global.
+- Tema claro/oscuro.
+- Idiomas.
+- Componentes reutilizables.
+
+La arquitectura permite entender el codigo por partes y facilita mantener o ampliar el proyecto en el futuro.

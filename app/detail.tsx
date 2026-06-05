@@ -1,6 +1,6 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionButton } from '@/components/ui/action-button';
@@ -15,13 +15,13 @@ export default function DetailScreen() {
         </Pressable>
         <Text style={styles.headerTitle}>Detalle</Text>
       </View>
-      <View style={styles.page}>
+      <ScrollView contentContainerStyle={styles.page}>
         <Text style={styles.title}>Stack Navigation</Text>
         <Text style={styles.text}>
           Esta pantalla se abre encima de las tabs usando el Stack configurado en el layout raiz.
         </Text>
         <ActionButton label="Regresar" icon="arrow-back" onPress={() => router.back()} />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -46,17 +47,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 42,
     height: 42,
+    flexShrink: 0,
     borderRadius: radius.md,
     backgroundColor: palette.surfaceMuted,
   },
   headerTitle: {
     color: palette.text,
+    flex: 1,
+    minWidth: 0,
     fontSize: 20,
     fontWeight: '800',
   },
   page: {
     gap: spacing.md,
     padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   title: {
     color: palette.text,

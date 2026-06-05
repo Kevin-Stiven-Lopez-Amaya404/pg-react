@@ -6,7 +6,9 @@ import { calculatorOperations, type CalculatorOperation } from '@/constants/acti
 import { palette, radius, spacing } from '@/constants/design';
 
 /*
-  Actividad de calculadora.
+  Punto 4: Calculadora basica.
+  Ubicacion de este punto: components/activities/calculator-card.tsx
+
   Permite ingresar dos numeros y elegir una operacion matematica.
 */
 export function CalculatorCard() {
@@ -35,7 +37,7 @@ export function CalculatorCard() {
     Incluye dos campos de texto, botones de operacion y el resultado final.
   */
   return (
-    <SectionCard title="4. Calculadora basica" description="Suma, resta, multiplicacion y division.">
+    <SectionCard title="4. Calculadora " description="Suma, resta, multiplicacion y division.">
       <View style={styles.inputRow}>
         <TextInput
           keyboardType="numeric"
@@ -138,6 +140,7 @@ const styles = StyleSheet.create({
   },
   operationRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
   },
   operationButton: {

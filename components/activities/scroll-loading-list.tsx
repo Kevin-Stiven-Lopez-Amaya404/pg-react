@@ -6,8 +6,11 @@ import { createListItems } from '@/constants/activity-data';
 import { palette, radius, spacing } from '@/constants/design';
 
 /*
-  Tipo que define las funciones que el componente expone hacia afuera.
-  En este caso, el componente padre puede llamar loadMore() usando una referencia.
+  Punto 5: Scroll Loading.
+  Ubicacion de este punto: components/activities/scroll-loading-list.tsx
+
+  Este archivo contiene la lista dinamica, la funcion para cargar mas registros
+  y la funcion auxiliar que detecta si el usuario llego al final del scroll.
 */
 export type ScrollLoadingListHandle = {
   loadMore: () => void;
@@ -38,7 +41,7 @@ export const ScrollLoadingList = forwardRef<ScrollLoadingListHandle>(function Sc
   /*
     Funcion principal para cargar mas registros.
     Primero revisa si ya hay una carga activa. Si no la hay,
-    activa el estado de carga y despues agrega 6 elementos nuevos.
+    activa el estado de carga y despues agrega 7 elementos nuevos.
   */
   const loadMore = () => {
     if (loadingRef.current) return;
@@ -47,7 +50,7 @@ export const ScrollLoadingList = forwardRef<ScrollLoadingListHandle>(function Sc
     setLoading(true);
 
     setTimeout(() => {
-      setItems((current) => [...current, ...createListItems(current.length + 1, 6)]);
+      setItems((current) => [...current, ...createListItems(current.length + 1, 7)]);
       setLoading(false);
       loadingRef.current = false;
     }, 800);
@@ -69,7 +72,7 @@ export const ScrollLoadingList = forwardRef<ScrollLoadingListHandle>(function Sc
       {items.map((item) => (
         <View key={item.id} style={styles.item}>
           <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.description}>Elemento cargado en la lista dinamica.</Text>
+          <Text style={styles.description}>Cargando stiven lopez.</Text>
         </View>
       ))}
       {loading && <ActivityIndicator color={palette.primary} style={styles.loader} />}

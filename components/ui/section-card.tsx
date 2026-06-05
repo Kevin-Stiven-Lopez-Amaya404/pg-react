@@ -24,6 +24,8 @@ export function SectionCard({ title, description, children }: SectionCardProps) 
 const styles = StyleSheet.create({
   card: {
     gap: spacing.md,
+    width: '100%',
+    minWidth: 0,
     padding: spacing.md,
     borderRadius: radius.lg,
     backgroundColor: palette.surface,
@@ -35,11 +37,13 @@ const styles = StyleSheet.create({
   },
   title: {
     color: palette.text,
+    flexShrink: 1,
     fontSize: 17,
     fontWeight: '800',
   },
   description: {
     color: palette.textMuted,
+    flexShrink: 1,
     fontSize: 13,
     lineHeight: 18,
   },

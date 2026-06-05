@@ -1,10 +1,11 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { router } from 'expo-router';
 import { PropsWithChildren, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { palette, radius, spacing } from '@/constants/design';
+import { radius, spacing } from '@/constants/design';
+import { useAppPreferences } from '@/contexts/app-preferences';
 
 type AppShellProps = PropsWithChildren<{
   title: string;
@@ -12,14 +13,17 @@ type AppShellProps = PropsWithChildren<{
 }>;
 
 const drawerItems = [
-  { label: 'Home', icon: 'home', href: '/' },
-  { label: 'Perfil', icon: 'person', href: '/profile' },
-  { label: 'Configuracion', icon: 'settings', href: '/settings' },
-  { label: 'Detalle', icon: 'article', href: '/detail' },
+  { labelKey: 'drawerHome', icon: 'home', href: '/' },
+  { labelKey: 'drawerProfile', icon: 'person', href: '/profile' },
+  { labelKey: 'drawerSettings', icon: 'settings', href: '/settings' },
+  { labelKey: 'drawerDetail', icon: 'article', href: '/detail' },
 ] as const;
 
 export function AppShell({ title, subtitle, children }: AppShellProps) {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const { width } = useWindowDimensions();
+  const { colors, t } = useAppPreferences();
+  const drawerWidth = Math.min(290, Math.max(240, width * 0.82));
 
   const goTo = (href: (typeof drawerItems)[number]['href']) => {
     setDrawerVisible(false);
@@ -27,17 +31,21 @@ export function AppShell({ title, subtitle, children }: AppShellProps) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.header,
+          { backgroundColor: colors.surface, borderBottomColor: colors.border },
+        ]}>
         <Pressable
           accessibilityLabel="Abrir menu lateral"
           onPress={() => setDrawerVisible(true)}
-          style={styles.iconButton}>
-          <MaterialIcons name="menu" size={24} color={palette.text} />
+          style={[styles.iconButton, { backgroundColor: colors.surfaceMuted }]}>
+          <MaterialIcons name="menu" size={24} color={colors.text} />
         </Pressable>
         <View style={styles.titleBlock}>
-          <Text style={styles.title}>{title}</Text>
-          {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+          <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+          {!!subtitle && <Text style={[styles.subtitle, { color: colors.textMuted }]}>{subtitle}</Text>}
         </View>
       </View>
 
@@ -45,15 +53,27 @@ export function AppShell({ title, subtitle, children }: AppShellProps) {
 
       <Modal transparent visible={drawerVisible} animationType="fade">
         <View style={styles.drawerLayer}>
-          <Pressable style={styles.backdrop} onPress={() => setDrawerVisible(false)} />
-          <SafeAreaView style={styles.drawer}>
-            <Text style={styles.drawerTitle}>Menu</Text>
-            {drawerItems.map((item) => (
-              <Pressable key={item.href} onPress={() => goTo(item.href)} style={styles.drawerItem}>
-                <MaterialIcons name={item.icon} size={22} color={palette.primary} />
-                <Text style={styles.drawerText}>{item.label}</Text>
-              </Pressable>
-            ))}
+          <Pressable
+            style={[styles.backdrop, { backgroundColor: colors.overlay }]}
+            onPress={() => setDrawerVisible(false)}
+          />
+          <SafeAreaView
+            style={[
+              styles.drawer,
+              { width: drawerWidth, backgroundColor: colors.surface, borderRightColor: colors.border },
+            ]}>
+            <ScrollView contentContainerStyle={styles.drawerContent}>
+              <Text style={[styles.drawerTitle, { color: colors.text }]}>{t('drawerMenu')}</Text>
+              {drawerItems.map((item) => (
+                <Pressable
+                  key={item.href}
+                  onPress={() => goTo(item.href)}
+                  style={[styles.drawerItem, { borderBottomColor: colors.border }]}>
+                  <MaterialIcons name={item.icon} size={22} color={colors.primary} style={styles.drawerIcon} />
+                  <Text style={[styles.drawerText, { color: colors.text }]}>{t(item.labelKey)}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
           </SafeAreaView>
         </View>
       </Modal>
@@ -64,16 +84,14 @@ export function AppShell({ title, subtitle, children }: AppShellProps) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: palette.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: spacing.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: palette.surface,
-    borderBottomColor: palette.border,
     borderBottomWidth: 1,
   },
   iconButton: {
@@ -81,19 +99,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 42,
     height: 42,
+    flexShrink: 0,
     borderRadius: radius.md,
-    backgroundColor: palette.surfaceMuted,
   },
   titleBlock: {
     flex: 1,
+    minWidth: 0,
   },
   title: {
-    color: palette.text,
+    flexShrink: 1,
     fontSize: 20,
     fontWeight: '700',
   },
   subtitle: {
-    color: palette.textMuted,
+    flexShrink: 1,
     fontSize: 13,
     marginTop: 2,
   },
@@ -106,20 +125,18 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: palette.overlay,
   },
   drawer: {
-    width: 290,
-    maxWidth: '82%',
-    backgroundColor: palette.surface,
-    paddingHorizontal: spacing.lg,
-    paddingTop: 16,
-    borderRightColor: palette.border,
+    maxWidth: '92%',
     borderRightWidth: 1,
     elevation: 8,
   },
+  drawerContent: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: 16,
+    paddingBottom: spacing.xl,
+  },
   drawerTitle: {
-    color: palette.text,
     fontSize: 24,
     fontWeight: '800',
     marginBottom: 18,
@@ -128,12 +145,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+    minWidth: 0,
     paddingVertical: 14,
-    borderBottomColor: palette.border,
     borderBottomWidth: 1,
   },
+  drawerIcon: {
+    flexShrink: 0,
+  },
   drawerText: {
-    color: palette.text,
+    flex: 1,
+    minWidth: 0,
     fontSize: 16,
     fontWeight: '600',
   },

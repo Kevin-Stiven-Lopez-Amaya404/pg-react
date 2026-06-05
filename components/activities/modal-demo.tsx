@@ -6,7 +6,9 @@ import { SectionCard } from '@/components/ui/section-card';
 import { palette, radius, spacing } from '@/constants/design';
 
 /*
-  Actividad de modal.
+  Punto 2: Dialog o Modal.
+  Ubicacion de este punto: components/activities/modal-demo.tsx
+
   Muestra como abrir y cerrar una ventana emergente usando el estado visible.
 */
 export function ModalDemo() {
@@ -22,7 +24,7 @@ export function ModalDemo() {
     vuelve a cambiar visible a false.
   */
   return (
-    <SectionCard title="2. Dialog o Modal" description="Apertura y cierre controlados por estado.">
+    <SectionCard title="2. Modal" description="Apertura y cierre controlados por estado.">
       <ActionButton label="Abrir modal" icon="chat-bubble-outline" onPress={() => setVisible(true)} />
 
       {/*
@@ -36,7 +38,7 @@ export function ModalDemo() {
           <View style={styles.box}>
             <Text style={styles.title}>Mensaje informativo</Text>
             <Text style={styles.text}>
-              Este modal usa el componente nativo de React Native y funciona en Android e iOS.
+              somos los mejores estudiantes de ciberseguridad stiven lopez.
             </Text>
             <ActionButton label="Cerrar" icon="close" onPress={() => setVisible(false)} />
           </View>
@@ -57,6 +59,7 @@ const styles = StyleSheet.create({
   box: {
     width: '100%',
     maxWidth: 380,
+    maxHeight: '86%',
     gap: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.lg,
