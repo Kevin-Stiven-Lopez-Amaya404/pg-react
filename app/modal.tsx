@@ -1,29 +1,48 @@
-import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ActionButton } from '@/components/ui/action-button';
+import { palette, radius, spacing } from '@/constants/design';
 
 export default function ModalScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
-      <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
-      </Link>
-    </ThemedView>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.box}>
+        <Text style={styles.title}>Modal informativo</Text>
+        <Text style={styles.text}>
+          Pantalla modal configurada en el Stack. En Home tambien hay un modal nativo con
+          apertura y cierre desde botones.
+        </Text>
+        <ActionButton label="Cerrar" icon="close" onPress={() => router.back()} />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: palette.background,
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
+  box: {
+    gap: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    backgroundColor: palette.surface,
+    borderColor: palette.border,
+    borderWidth: 1,
+  },
+  title: {
+    color: palette.text,
+    fontSize: 22,
+    fontWeight: '800',
+  },
+  text: {
+    color: palette.textMuted,
+    fontSize: 16,
+    lineHeight: 23,
   },
 });
