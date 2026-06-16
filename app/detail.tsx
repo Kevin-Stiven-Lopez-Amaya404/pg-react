@@ -4,20 +4,30 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActionButton } from '@/components/ui/action-button';
-import { palette, radius, spacing } from '@/constants/design';
+import { radius, spacing } from '@/constants/design';
+import { useAppPreferences } from '@/contexts/app-preferences';
 
 export default function DetailScreen() {
+  const { colors } = useAppPreferences();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Pressable accessibilityLabel="Volver" onPress={() => router.back()} style={styles.iconButton}>
-          <MaterialIcons name="arrow-back" size={24} color={palette.text} />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View
+        style={[
+          styles.header,
+          { backgroundColor: colors.surface, borderBottomColor: colors.border },
+        ]}>
+        <Pressable
+          accessibilityLabel="Volver"
+          onPress={() => router.back()}
+          style={[styles.iconButton, { backgroundColor: colors.surfaceMuted }]}>
+          <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
-        <Text style={styles.headerTitle}>Detalle</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Detalle</Text>
       </View>
       <ScrollView contentContainerStyle={styles.page}>
-        <Text style={styles.title}>Stack Navigation</Text>
-        <Text style={styles.text}>
+        <Text style={[styles.title, { color: colors.text }]}>Stack Navigation</Text>
+        <Text style={[styles.text, { color: colors.textMuted }]}>
           Esta pantalla se abre encima de las tabs usando el Stack configurado en el layout raiz.
         </Text>
         <ActionButton label="Regresar" icon="arrow-back" onPress={() => router.back()} />
@@ -29,7 +39,6 @@ export default function DetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: palette.background,
   },
   header: {
     alignItems: 'center',
@@ -38,8 +47,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: palette.surface,
-    borderBottomColor: palette.border,
     borderBottomWidth: 1,
   },
   iconButton: {
@@ -49,10 +56,8 @@ const styles = StyleSheet.create({
     height: 42,
     flexShrink: 0,
     borderRadius: radius.md,
-    backgroundColor: palette.surfaceMuted,
   },
   headerTitle: {
-    color: palette.text,
     flex: 1,
     minWidth: 0,
     fontSize: 20,
@@ -64,12 +69,10 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   title: {
-    color: palette.text,
     fontSize: 24,
     fontWeight: '800',
   },
   text: {
-    color: palette.textMuted,
     fontSize: 16,
     lineHeight: 23,
   },

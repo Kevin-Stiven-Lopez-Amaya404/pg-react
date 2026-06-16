@@ -1,18 +1,29 @@
-# Explicacion del codigo y elementos usados
+# Explicacion del codigo actualizado
 
-## 1. Tecnologias usadas
+## 1. Proposito de este documento
 
-El proyecto usa estas tecnologias principales:
+Este documento explica los elementos usados en el proyecto y como se conecta cada parte del codigo.
 
-- `Expo`: entorno para crear y ejecutar la app.
-- `React Native`: framework para construir interfaces moviles.
-- `Expo Router`: sistema de navegacion basado en archivos.
-- `TypeScript`: tipado para escribir codigo mas seguro.
-- `React Hooks`: funciones como `useState`, `useMemo`, `useRef` y `useContext`.
-- `MaterialIcons`: iconos usados en botones, tabs y menu.
-- `Context API`: estado global para idioma y tema.
+La idea es que puedas explicar el proyecto sin depender de comentarios largos dentro del codigo. Por eso el codigo quedo mas limpio y la explicacion detallada queda aqui, en la carpeta `documentacion`.
 
-## 2. Estructura principal del proyecto
+## 2. Tecnologias usadas
+
+El proyecto usa:
+
+- `Expo`: entorno para ejecutar la aplicacion.
+- `React Native`: framework para crear la interfaz.
+- `Expo Router`: navegacion basada en archivos.
+- `expo-image-picker`: seleccion de imagenes desde la galeria del dispositivo.
+- `TypeScript`: tipado para evitar errores comunes.
+- `React Hooks`: manejo de estado y referencias.
+- `Context API`: estado global de idioma y tema.
+- `MaterialIcons`: iconos en botones, tabs y menus.
+
+## 3. Arquitectura del codigo
+
+La arquitectura esta basada en componentes.
+
+La estructura principal es:
 
 ```txt
 app/
@@ -34,22 +45,21 @@ contexts/
   app-preferences.tsx
 
 constants/
-  design.ts
   activity-data.ts
+  design.ts
 ```
 
-Explicacion:
+Cada carpeta tiene una responsabilidad:
 
-- `app/` guarda las pantallas.
-- `components/` guarda piezas reutilizables.
-- `contexts/` guarda estado global.
-- `constants/` guarda datos y estilos reutilizables.
+- `app/`: pantallas y rutas.
+- `components/activities/`: actividades de la pantalla principal.
+- `components/ui/`: componentes reutilizables.
+- `contexts/`: estado global.
+- `constants/`: datos y estilos compartidos.
 
-## 3. Layout raiz
+## 4. Navegacion principal
 
 Archivo: `app/_layout.tsx`
-
-Este archivo envuelve toda la aplicacion con el proveedor de preferencias y define la navegacion principal.
 
 ```tsx
 export default function RootLayout() {
@@ -63,9 +73,9 @@ export default function RootLayout() {
 
 Explicacion:
 
-- `AppPreferencesProvider` permite que toda la app acceda al idioma y tema.
-- `RootNavigation` contiene el `Stack`.
-- Al envolver la app aqui, cualquier pantalla puede usar `useAppPreferences()`.
+- `AppPreferencesProvider` envuelve toda la app.
+- Gracias a eso, cualquier pantalla puede leer el idioma, el tema y los colores.
+- `RootNavigation` contiene el Stack principal.
 
 ```tsx
 <Stack>
@@ -77,28 +87,22 @@ Explicacion:
 
 Explicacion:
 
-- `(tabs)` contiene el menu inferior.
-- `detail` es una pantalla normal del Stack.
-- `modal` se abre como pantalla modal.
+- `(tabs)` agrupa las pantallas del menu inferior.
+- `detail` abre una pantalla normal.
+- `modal` abre una pantalla como modal.
 
-## 4. Navegacion por tabs
+## 5. Tabs inferiores
 
 Archivo: `app/(tabs)/_layout.tsx`
 
 ```tsx
-<Tabs
-  screenOptions={{
-    headerShown: false,
-    tabBarActiveTintColor: colors.primary,
-    tabBarInactiveTintColor: colors.textMuted,
-  }}>
+const { colors, t } = useAppPreferences();
 ```
 
 Explicacion:
 
-- `Tabs` crea el menu inferior.
-- `headerShown: false` oculta el header automatico.
-- Los colores vienen del tema activo.
+- `colors` trae los colores del tema activo.
+- `t()` trae textos segun el idioma seleccionado.
 
 ```tsx
 <Tabs.Screen
@@ -113,25 +117,26 @@ Explicacion:
 Explicacion:
 
 - `name="profile"` conecta con `app/(tabs)/profile.tsx`.
-- `title: t('profile')` cambia segun el idioma.
-- `MaterialIcons` coloca el icono de perfil.
+- El titulo cambia con el idioma.
+- El icono se renderiza con `MaterialIcons`.
 
-## 5. Pantalla principal
+## 6. Pantalla Home
 
 Archivo: `app/(tabs)/index.tsx`
 
+Home organiza todas las actividades.
+
 ```tsx
-export default function HomeScreen() {
-  const { colors, t } = useAppPreferences();
-  const { width } = useWindowDimensions();
-  const listRef = useRef<ScrollLoadingListHandle>(null);
+const { colors, t } = useAppPreferences();
+const { width } = useWindowDimensions();
+const listRef = useRef<ScrollLoadingListHandle>(null);
 ```
 
 Explicacion:
 
-- `useAppPreferences()` trae colores e idioma global.
-- `useWindowDimensions()` obtiene el ancho de pantalla para adaptar el diseno.
-- `useRef()` permite controlar la lista dinamica desde Home.
+- `useAppPreferences()` trae tema e idioma.
+- `useWindowDimensions()` ayuda a adaptar la pantalla.
+- `useRef()` permite llamar funciones de la lista dinamica.
 
 ```tsx
 const openDetail = () => router.push('/detail');
@@ -140,8 +145,8 @@ const openModal = () => router.push('/modal');
 
 Explicacion:
 
-- `router.push('/detail')` abre la pantalla de detalle.
-- `router.push('/modal')` abre la pantalla modal.
+- `openDetail` abre la pantalla de detalle.
+- `openModal` abre la pantalla modal.
 
 ```tsx
 <ButtonsDemo onOpenDetail={openDetail} />
@@ -149,16 +154,131 @@ Explicacion:
 <DropdownDemo />
 <CalculatorCard />
 <ScrollLoadingList ref={listRef} />
-<NavigationDemo onOpenDetail={openDetail} onOpenModal={openModal} />
 ```
 
 Explicacion:
 
-- Home solo organiza las actividades.
-- Cada actividad tiene su propio archivo.
-- Esto evita mezclar toda la logica en una sola pantalla.
+- Home no contiene toda la logica.
+- Solo organiza las actividades.
+- Cada actividad vive en su propio archivo.
 
-## 6. Uso de botones
+## 7. AppShell
+
+Archivo: `components/app-shell.tsx`
+
+`AppShell` es el contenedor visual general.
+
+Incluye:
+
+- Area segura con `SafeAreaView`.
+- Header.
+- Titulo y subtitulo.
+- Boton de menu.
+- Drawer lateral.
+- Contenido interno de cada pantalla.
+
+Fragmento importante:
+
+```tsx
+const { colors, t } = useAppPreferences();
+```
+
+Explicacion:
+
+- El shell usa los colores del tema.
+- Tambien traduce textos del drawer.
+
+```tsx
+const drawerWidth = Math.min(290, Math.max(240, width * 0.82));
+```
+
+Explicacion:
+
+- Calcula el ancho del drawer segun el tamano de pantalla.
+- Evita que el menu lateral se vea recortado.
+
+## 8. Componentes UI reutilizables
+
+### ActionButton
+
+Archivo: `components/ui/action-button.tsx`
+
+Sirve para crear botones con un estilo uniforme.
+
+```tsx
+type ActionButtonProps = {
+  label: string;
+  onPress: () => void;
+  icon?: IconName;
+  variant?: 'primary' | 'soft' | 'outline';
+};
+```
+
+Explicacion:
+
+- `label`: texto del boton.
+- `onPress`: funcion que se ejecuta al tocar.
+- `icon`: icono opcional.
+- `variant`: estilo del boton.
+
+```tsx
+const variantStyle = {
+  primary: { backgroundColor: colors.primary },
+  soft: { backgroundColor: colors.surfaceMuted },
+  outline: {
+    backgroundColor: colors.surface,
+    borderColor: colors.borderStrong,
+    borderWidth: 1,
+  },
+}[variant];
+```
+
+Explicacion:
+
+- El boton cambia de color segun su variante.
+- Tambien respeta el modo claro u oscuro.
+
+### SectionCard
+
+Archivo: `components/ui/section-card.tsx`
+
+Sirve para mostrar cada actividad dentro de una tarjeta.
+
+```tsx
+type SectionCardProps = {
+  title: string;
+  description?: string;
+  children: ReactNode;
+};
+```
+
+Explicacion:
+
+- `title`: titulo de la tarjeta.
+- `description`: descripcion opcional.
+- `children`: contenido interno de la tarjeta.
+
+```tsx
+<View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+```
+
+Explicacion:
+
+- La tarjeta toma colores del tema global.
+- Eso permite que funcione en modo claro y oscuro.
+
+### DropdownSelect
+
+Archivo: `components/ui/dropdown-select.tsx`
+
+Sirve para seleccionar una opcion desde un modal.
+
+Se usa en:
+
+- Actividad de dropdown.
+- Configuracion para elegir idioma.
+
+## 9. Actividad 1: Uso de botones
 
 Archivo: `components/activities/buttons-demo.tsx`
 
@@ -168,23 +288,21 @@ const [message, setMessage] = useState('Presiona un boton para ver la interaccio
 
 Explicacion:
 
-- `message` guarda el texto actual.
-- `setMessage` cambia el texto.
-- `useState` permite que la interfaz se actualice.
+- `message` guarda el texto que se muestra.
+- `setMessage` actualiza el texto.
 
 ```tsx
 <ActionButton
   label="Saludar"
   icon="waving-hand"
-  onPress={() => setMessage('Hola, onPress activo.')}
+  onPress={() => setMessage('Hola, el boton esta funcionando.')}
 />
 ```
 
 Explicacion:
 
-- `ActionButton` es un boton reutilizable.
-- `onPress` se ejecuta cuando el usuario presiona.
-- Al presionar, cambia el mensaje en pantalla.
+- Al presionar el boton, cambia el mensaje.
+- Se usa `ActionButton`, no un boton repetido manualmente.
 
 ```tsx
 <ActionButton label="Detalle" icon="open-in-new" variant="outline" onPress={onOpenDetail} />
@@ -192,11 +310,10 @@ Explicacion:
 
 Explicacion:
 
-- Este boton no cambia texto.
-- Ejecuta `onOpenDetail`.
-- Esa funcion viene desde Home y abre `/detail`.
+- Este boton usa una funcion recibida por props.
+- Esa funcion abre la pantalla `/detail`.
 
-## 7. Dialogo o modal
+## 10. Actividad 2: Modal
 
 Archivo: `components/activities/modal-demo.tsx`
 
@@ -206,18 +323,7 @@ const [visible, setVisible] = useState(false);
 
 Explicacion:
 
-- `visible` indica si el modal se muestra.
-- `false` significa cerrado.
-- `true` significa abierto.
-
-```tsx
-<ActionButton label="Abrir modal" icon="chat-bubble-outline" onPress={() => setVisible(true)} />
-```
-
-Explicacion:
-
-- Al presionar, `visible` pasa a `true`.
-- Esto hace que el modal aparezca.
+- Controla si el modal esta abierto o cerrado.
 
 ```tsx
 <Modal transparent visible={visible} animationType="slide" onRequestClose={() => setVisible(false)}>
@@ -225,12 +331,12 @@ Explicacion:
 
 Explicacion:
 
-- `Modal` es un componente nativo de React Native.
-- `transparent` permite ver una capa oscura detras.
-- `animationType="slide"` da una animacion.
+- `Modal` crea una ventana emergente.
+- `visible` decide si aparece.
+- `animationType="slide"` agrega animacion.
 - `onRequestClose` permite cerrar en Android.
 
-## 8. Dropdown
+## 11. Actividad 3: Dropdown
 
 Archivo: `components/activities/dropdown-demo.tsx`
 
@@ -241,8 +347,8 @@ const [selectedCourse, setSelectedCourse] = useState(courseOptions[0]);
 
 Explicacion:
 
-- `visible` abre o cierra el menu.
-- `selectedCourse` guarda la opcion seleccionada.
+- `visible` controla si el selector esta abierto.
+- `selectedCourse` guarda la opcion elegida.
 
 ```tsx
 <DropdownSelect
@@ -258,11 +364,10 @@ Explicacion:
 
 Explicacion:
 
-- `options` recibe las opciones.
-- `value` muestra la seleccion actual.
-- `onSelect` cambia la opcion seleccionada.
+- El componente recibe opciones y funciones.
+- Cuando se selecciona una opcion, se actualiza el estado.
 
-## 9. Calculadora
+## 12. Actividad 4: Calculadora
 
 Archivo: `components/activities/calculator-card.tsx`
 
@@ -274,9 +379,8 @@ const [operation, setOperation] = useState<CalculatorOperation>('sum');
 
 Explicacion:
 
-- `firstValue` guarda el primer numero.
-- `secondValue` guarda el segundo numero.
-- `operation` guarda la operacion seleccionada.
+- Guarda los dos numeros.
+- Guarda la operacion seleccionada.
 
 ```tsx
 const result = useMemo(() => calculate(firstValue, secondValue, operation), [
@@ -288,19 +392,7 @@ const result = useMemo(() => calculate(firstValue, secondValue, operation), [
 
 Explicacion:
 
-- `useMemo` recalcula solo cuando cambian los valores.
-- Se usa para obtener el resultado final.
-
-```tsx
-function calculate(firstValue: string, secondValue: string, operation: CalculatorOperation) {
-  const a = Number(firstValue);
-  const b = Number(secondValue);
-```
-
-Explicacion:
-
-- La funcion convierte los textos a numeros.
-- Luego valida y calcula.
+- Calcula el resultado solo cuando cambian los datos necesarios.
 
 ```tsx
 if (operation === 'div' && b === 0) {
@@ -310,9 +402,9 @@ if (operation === 'div' && b === 0) {
 
 Explicacion:
 
-- Evita el error matematico de dividir entre cero.
+- Evita dividir entre cero.
 
-## 10. Scroll loading
+## 13. Actividad 5: Scroll Loading
 
 Archivo: `components/activities/scroll-loading-list.tsx`
 
@@ -324,60 +416,28 @@ const loadingRef = useRef(false);
 
 Explicacion:
 
-- `items` guarda los registros.
-- `loading` controla el indicador de carga.
-- `loadingRef` evita cargas repetidas al mismo tiempo.
+- `items` contiene los registros.
+- `loading` muestra el indicador de carga.
+- `loadingRef` evita cargas duplicadas.
 
 ```tsx
-setItems((current) => [...current, ...createListItems(current.length + 1, 6)]);
+setItems((current) => [...current, ...createListItems(current.length + 1, 7)]);
 ```
 
 Explicacion:
 
-- Toma los registros actuales.
-- Agrega 6 registros nuevos.
-- Actualiza la lista en pantalla.
+- Agrega 7 registros nuevos.
+- Mantiene los registros anteriores.
 
 ```tsx
-export function shouldLoadMore({ viewportHeight, offsetY, contentHeight }) {
-  return viewportHeight + offsetY >= contentHeight - 90;
-}
+useImperativeHandle(ref, () => ({ loadMore }));
 ```
 
 Explicacion:
 
-- Detecta si el usuario esta cerca del final del scroll.
-- Si devuelve `true`, se cargan mas registros.
+- Permite que Home pueda llamar `loadMore()` desde afuera.
 
-## 11. Navegacion
-
-Archivo: `components/activities/navigation-demo.tsx`
-
-```tsx
-type NavigationDemoProps = {
-  onOpenDetail: () => void;
-  onOpenModal: () => void;
-};
-```
-
-Explicacion:
-
-- El componente recibe funciones desde Home.
-- No decide directamente la ruta.
-- Esto permite reutilizarlo mejor.
-
-```tsx
-<ActionButton label="Ir a detalle" icon="arrow-forward" onPress={onOpenDetail} />
-<ActionButton label="Abrir modal" icon="open-in-new" variant="outline" onPress={onOpenModal} />
-```
-
-Explicacion:
-
-- El primer boton abre `/detail`.
-- El segundo boton abre `/modal`.
-- Ambos usan funciones enviadas por props.
-
-## 12. Perfil editable
+## 14. Perfil editable
 
 Archivo: `app/(tabs)/profile.tsx`
 
@@ -386,12 +446,59 @@ const [name, setName] = useState('Stiven');
 const [email, setEmail] = useState('stiven@email.com');
 const [program, setProgram] = useState('React Native');
 const [city, setCity] = useState('Bogota');
+const [phone, setPhone] = useState('300 123 4567');
+const [profileImage, setProfileImage] = useState('');
+const [bio, setBio] = useState('Estudiante enfocado en crear interfaces moviles claras y faciles de usar.');
 ```
 
 Explicacion:
 
 - Cada dato del perfil tiene su propio estado.
-- Cuando el usuario escribe, se actualiza automaticamente.
+- Al editar un campo, el resumen se actualiza.
+- `profileImage` guarda la imagen seleccionada desde la galeria.
+- `bio` guarda la descripcion que aparece en el resumen.
+
+```tsx
+const pickProfileImage = async () => {
+  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+  if (!permission.granted) {
+    Alert.alert('Permiso requerido', 'Necesitas permitir el acceso a la galeria para elegir una foto.');
+    return;
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    allowsEditing: true,
+    aspect: [1, 1],
+    mediaTypes: ['images'],
+    quality: 0.85,
+  });
+
+  if (!result.canceled) {
+    setProfileImage(result.assets[0].uri);
+  }
+};
+```
+
+Explicacion:
+
+- Primero solicita permiso para acceder a la galeria.
+- Si el permiso no se concede, muestra una alerta.
+- Si el permiso se concede, abre la galeria del dispositivo.
+- `allowsEditing` permite recortar la imagen antes de usarla.
+- `aspect: [1, 1]` mantiene formato cuadrado para el avatar.
+- Cuando se elige una imagen, se guarda su `uri` en `profileImage`.
+
+```tsx
+<AvatarButton imageUri={profileImage} name={name} onPress={pickProfileImage} />
+```
+
+Explicacion:
+
+- `AvatarButton` muestra la foto del perfil.
+- Si no hay foto, muestra las iniciales del nombre.
+- Al tocar el avatar se ejecuta `pickProfileImage`.
+- El icono de camara indica que la foto se puede cambiar.
 
 ```tsx
 <ProfileInput label="Nombre" value={name} onChangeText={setName} placeholder="Escribe tu nombre" />
@@ -399,11 +506,15 @@ Explicacion:
 
 Explicacion:
 
-- `ProfileInput` es un campo reutilizable.
-- Recibe el valor y la funcion para cambiarlo.
+- `ProfileInput` evita repetir codigo de campos.
 - Usa `TextInput` internamente.
 
-## 13. Configuracion funcional
+La pantalla tambien usa `SectionCard` para separar:
+
+- Datos principales.
+- Descripcion.
+
+## 15. Configuracion
 
 Archivo: `app/(tabs)/settings.tsx`
 
@@ -420,11 +531,10 @@ const {
 
 Explicacion:
 
-- Trae datos y funciones del contexto global.
-- `colors` cambia con el tema.
-- `t()` traduce textos.
-- `setLanguageByLabel()` cambia idioma.
-- `setThemeMode()` cambia claro u oscuro.
+- Lee datos globales del contexto.
+- Cambia idioma.
+- Cambia tema claro u oscuro.
+- Traduce textos.
 
 ```tsx
 <DropdownSelect
@@ -437,8 +547,8 @@ Explicacion:
 
 Explicacion:
 
-- El dropdown cambia el idioma global.
-- Al cambiar idioma, cambian textos en la app.
+- El dropdown modifica el idioma global.
+- Al cambiar el idioma, cambian textos de tabs, drawer y configuracion.
 
 ```tsx
 onPress={() => setThemeMode(option.value)}
@@ -447,23 +557,20 @@ onPress={() => setThemeMode(option.value)}
 Explicacion:
 
 - Cambia el tema global.
-- Si selecciona `dark`, la app usa colores oscuros.
-- Si selecciona `light`, la app usa colores claros.
+- La app se actualiza con colores claros u oscuros.
 
-## 14. Contexto global
+## 16. Contexto global
 
 Archivo: `contexts/app-preferences.tsx`
 
 ```tsx
-export function AppPreferencesProvider({ children }: PropsWithChildren) {
-  const [language, setLanguage] = useState<LanguageCode>('es');
-  const [themeMode, setThemeMode] = useState<ThemeMode>('light');
+const [language, setLanguage] = useState<LanguageCode>('es');
+const [themeMode, setThemeMode] = useState<ThemeMode>('light');
 ```
 
 Explicacion:
 
 - Guarda idioma y tema.
-- Este estado esta disponible para toda la app.
 
 ```tsx
 colors: themeMode === 'dark' ? darkPalette : palette,
@@ -471,8 +578,7 @@ colors: themeMode === 'dark' ? darkPalette : palette,
 
 Explicacion:
 
-- Si el tema es oscuro, usa `darkPalette`.
-- Si el tema es claro, usa `palette`.
+- Usa colores oscuros o claros segun el tema seleccionado.
 
 ```tsx
 t: (key) => translations[language][key],
@@ -480,110 +586,72 @@ t: (key) => translations[language][key],
 
 Explicacion:
 
-- `t()` recibe una clave.
-- Devuelve el texto en el idioma seleccionado.
+- Devuelve textos traducidos segun el idioma.
 
-## 15. Estilos
+## 17. Constantes
 
-Los estilos se definen con `StyleSheet.create`.
+### `constants/design.ts`
 
-Ejemplo:
+Contiene:
 
-```tsx
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-});
-```
+- `palette`: colores claros.
+- `darkPalette`: colores oscuros.
+- `radius`: bordes.
+- `spacing`: espaciados.
 
-Explicacion:
+### `constants/activity-data.ts`
 
-- `flexDirection: 'row'` coloca elementos en fila.
-- `flexWrap: 'wrap'` permite que bajen de linea si no caben.
-- `gap` separa los elementos.
+Contiene:
 
-## 16. Elementos de React Native usados
+- Opciones del dropdown.
+- Operaciones de la calculadora.
+- Funcion para crear elementos de lista.
 
-Se usaron estos elementos principales:
+## 18. Elementos de React Native usados
 
-- `View`: contenedor visual.
-- `Text`: textos en pantalla.
+Elementos principales:
+
+- `View`: contenedor.
+- `Text`: texto.
 - `TextInput`: campos editables.
 - `Pressable`: elementos presionables.
-- `ScrollView`: contenido desplazable.
-- `Modal`: ventanas emergentes.
-- `Switch`: interruptor de configuracion.
+- `ScrollView`: contenido con scroll.
+- `Modal`: ventana emergente.
+- `Switch`: interruptor.
 - `ActivityIndicator`: indicador de carga.
-- `SafeAreaView`: evita que el contenido choque con bordes del dispositivo.
+- `SafeAreaView`: evita recortes con bordes del dispositivo.
 - `StyleSheet`: estilos organizados.
 
-## 17. Hooks usados
+## 19. Hooks usados
 
-### `useState`
+- `useState`: estado local.
+- `useMemo`: calculo memorizado.
+- `useRef`: referencias.
+- `useImperativeHandle`: expone funciones al padre.
+- `useContext`: lectura de estado global mediante `useAppPreferences`.
+- `useWindowDimensions`: tamano de pantalla.
 
-Sirve para guardar datos que cambian.
+## 20. Puntos de mejora y verificacion tecnica
 
-Se usa en:
+Para mantener el proyecto claro, funcional y facil de sustentar, se deben tener en cuenta estos puntos:
 
-- Botones.
-- Modal.
-- Dropdown.
-- Calculadora.
-- Perfil.
-- Configuracion.
+- Optimizar la organizacion del codigo y evitar duplicaciones innecesarias.
+- Mantener una arquitectura consistente entre pantallas, componentes, constantes y contexto global.
+- Verificar que los selectores tipo `Dropdown` o `Picker` funcionen correctamente en iOS.
+- Revisar que la navegacion requerida este implementada segun corresponda: Drawer, Stack y Bottom Navigation.
+- Comprobar que el Scroll Loading cargue datos de forma correcta y sin llamadas duplicadas.
+- Mejorar la explicacion tecnica para que cada componente pueda sustentarse con claridad.
+- Revisar el estado de Git antes de entregar, evitando archivos innecesarios o conflictos pendientes.
+- Confirmar que las dependencias instaladas sean compatibles con la version de Expo usada.
+- Probar la interfaz en diferentes tamanos de pantalla para detectar problemas de experiencia de usuario.
+- Ajustar pantallas con formularios para que el teclado no oculte campos o botones importantes.
+- Conservar una estructura de archivos ordenada por responsabilidad.
+- Retirar componentes, propiedades o patrones deprecados.
+- Revisar apartados no presentados y preparar una nueva entrega cuando sea necesario.
+- Subir las correcciones finales en la plataforma o repositorio solicitado.
 
-### `useMemo`
+## 21. Explicacion corta para exponer
 
-Sirve para recalcular un valor solo cuando cambian sus dependencias.
+Puedes decir:
 
-Se usa en:
-
-- Calculadora.
-
-### `useRef`
-
-Sirve para guardar una referencia que no reinicia el render.
-
-Se usa en:
-
-- Home para controlar `ScrollLoadingList`.
-- Scroll loading para evitar cargas repetidas.
-
-### `useImperativeHandle`
-
-Sirve para exponer funciones de un componente hijo al padre.
-
-Se usa en:
-
-- `ScrollLoadingList`, para exponer `loadMore()`.
-
-### `useContext`
-
-Sirve para leer datos globales.
-
-Se usa mediante:
-
-- `useAppPreferences()`.
-
-## 18. Explicacion corta para exponer
-
-Puedes explicar asi:
-
-> En este proyecto use Expo con React Native y Expo Router. La app esta organizada por componentes. Cada actividad tiene su propio archivo, los botones y tarjetas son reutilizables, la navegacion usa Stack y Bottom Tabs, y el menu lateral fue hecho con Modal. Tambien use Context API para manejar idioma y tema claro/oscuro de forma global. Los elementos principales de React Native que use fueron View, Text, Pressable, Modal, ScrollView, TextInput, Switch y ActivityIndicator.
-
-## 19. Conclusion
-
-El codigo esta dividido para que cada parte tenga una funcion clara.
-
-La idea principal es:
-
-- Home organiza las actividades.
-- Cada actividad maneja su propia logica.
-- Los componentes UI evitan repetir codigo.
-- El contexto global maneja preferencias.
-- Expo Router maneja la navegacion.
-
-Esto hace que el proyecto sea mas facil de entender, mantener y explicar.
+> El proyecto esta construido con Expo, React Native y Expo Router. La arquitectura esta basada en componentes. Home organiza las actividades, cada actividad tiene su propio archivo y los componentes UI como `ActionButton`, `SectionCard` y `DropdownSelect` evitan repetir codigo. La navegacion usa Stack, Tabs y un drawer lateral hecho con Modal. Tambien se implemento un contexto global para manejar idioma y tema claro u oscuro en toda la app.

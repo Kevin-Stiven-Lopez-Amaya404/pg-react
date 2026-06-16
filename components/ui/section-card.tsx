@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { palette, radius, spacing } from '@/constants/design';
+import { radius, spacing } from '@/constants/design';
+import { useAppPreferences } from '@/contexts/app-preferences';
 
 type SectionCardProps = {
   title: string;
@@ -10,11 +11,13 @@ type SectionCardProps = {
 };
 
 export function SectionCard({ title, description, children }: SectionCardProps) {
+  const { colors } = useAppPreferences();
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
-        {!!description && <Text style={styles.description}>{description}</Text>}
+        <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+        {!!description && <Text style={[styles.description, { color: colors.textMuted }]}>{description}</Text>}
       </View>
       {children}
     </View>
@@ -28,21 +31,17 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: spacing.md,
     borderRadius: radius.lg,
-    backgroundColor: palette.surface,
-    borderColor: palette.border,
     borderWidth: 1,
   },
   header: {
     gap: 4,
   },
   title: {
-    color: palette.text,
     flexShrink: 1,
     fontSize: 17,
     fontWeight: '800',
   },
   description: {
-    color: palette.textMuted,
     flexShrink: 1,
     fontSize: 13,
     lineHeight: 18,

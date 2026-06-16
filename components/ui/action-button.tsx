@@ -2,7 +2,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import type { ComponentProps } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { palette, radius } from '@/constants/design';
+import { radius } from '@/constants/design';
+import { useAppPreferences } from '@/contexts/app-preferences';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
@@ -14,7 +15,17 @@ type ActionButtonProps = {
 };
 
 export function ActionButton({ label, onPress, icon, variant = 'primary' }: ActionButtonProps) {
+  const { colors } = useAppPreferences();
   const isPrimary = variant === 'primary';
+  const variantStyle = {
+    primary: { backgroundColor: colors.primary },
+    soft: { backgroundColor: colors.surfaceMuted },
+    outline: {
+      backgroundColor: colors.surface,
+      borderColor: colors.borderStrong,
+      borderWidth: 1,
+    },
+  }[variant];
 
   return (
     <Pressable
@@ -22,18 +33,18 @@ export function ActionButton({ label, onPress, icon, variant = 'primary' }: Acti
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        styles[variant],
+        variantStyle,
         pressed && styles.pressed,
       ]}>
       {!!icon && (
         <MaterialIcons
           name={icon}
           size={19}
-          color={isPrimary ? palette.surface : palette.primary}
+          color={isPrimary ? colors.surface : colors.primary}
           style={styles.icon}
         />
       )}
-      <Text style={[styles.text, isPrimary ? styles.primaryText : styles.secondaryText]}>{label}</Text>
+      <Text style={[styles.text, { color: isPrimary ? colors.surface : colors.primary }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -54,17 +65,6 @@ const styles = StyleSheet.create({
   icon: {
     flexShrink: 0,
   },
-  primary: {
-    backgroundColor: palette.primary,
-  },
-  soft: {
-    backgroundColor: palette.surfaceMuted,
-  },
-  outline: {
-    backgroundColor: palette.surface,
-    borderColor: palette.borderStrong,
-    borderWidth: 1,
-  },
   pressed: {
     opacity: 0.75,
   },
@@ -73,11 +73,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
-  },
-  primaryText: {
-    color: palette.surface,
-  },
-  secondaryText: {
-    color: palette.primary,
   },
 });

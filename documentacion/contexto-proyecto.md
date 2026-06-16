@@ -12,7 +12,7 @@ La aplicacion funciona como una guia de actividades practicas donde se demuestra
 - Calculadora basica.
 - Scroll con carga dinamica.
 - Navegacion entre pantallas.
-- Perfil editable.
+- Perfil editable con foto seleccionada desde la galeria.
 - Configuracion funcional con idioma y tema claro/oscuro.
 
 La pantalla principal se llama `Actividad stiven` y muestra las actividades en forma de tarjetas.
@@ -32,7 +32,7 @@ El proyecto esta organizado por responsabilidades:
 - `constants/`: contiene datos, colores y valores reutilizables.
 - `hooks/`: contiene hooks auxiliares del proyecto base.
 
-Esta organizacion permite separar la logica por partes. La pantalla principal no tiene toda la logica mezclada, sino que importa componentes como `ButtonsDemo`, `ModalDemo`, `CalculatorCard` y `NavigationDemo`.
+Esta organizacion permite separar la logica por partes. La pantalla principal no tiene toda la logica mezclada, sino que importa componentes como `ButtonsDemo`, `ModalDemo`, `CalculatorCard` y `ScrollLoadingList`.
 
 ## 3. Patron principal aplicado
 
@@ -55,7 +55,6 @@ Ejemplo:
 - `<DropdownDemo />`
 - `<CalculatorCard />`
 - `<ScrollLoadingList />`
-- `<NavigationDemo />`
 
 Esto hace que el codigo sea mas limpio y facil de explicar.
 
@@ -326,26 +325,6 @@ Funciones:
 
 Tambien expone la funcion `loadMore()` hacia el componente padre usando `forwardRef` y `useImperativeHandle`.
 
-### 6. Navegacion
-
-Archivo: `components/activities/navigation-demo.tsx`
-
-Demuestra la navegacion de la app.
-
-Incluye:
-
-- Boton para ir a `/detail`.
-- Boton para abrir `/modal`.
-- Indicadores visuales de rutas.
-
-Conceptos aplicados:
-
-- Navegacion con `router.push()`.
-- Stack Navigation.
-- Modal screen.
-- Bottom Tabs.
-- Drawer lateral.
-
 ## 10. Pantallas principales
 
 ### Home
@@ -366,7 +345,26 @@ Funciones:
 
 Archivo: `app/(tabs)/profile.tsx`
 
-Muestra un perfil editable.
+Muestra un perfil editable organizado por secciones.
+
+La pantalla tiene:
+
+- Resumen superior con foto, nombre, programa, ciudad, correo y descripcion.
+- Foto de perfil integrada en el resumen superior.
+- Seccion para datos principales.
+- Seccion para descripcion personal.
+- Botones para ver detalle y limpiar campos.
+
+La foto de perfil se selecciona desde la galeria del dispositivo usando `expo-image-picker`.
+
+Funcionamiento de la imagen:
+
+- El avatar se puede tocar.
+- La app solicita permiso para acceder a la galeria.
+- Se abre el selector de imagen del dispositivo.
+- La imagen elegida se guarda en el estado `profileImage`.
+- Si no hay imagen, se muestran las iniciales del nombre.
+- El boton `Quitar foto` limpia la imagen seleccionada.
 
 Campos:
 
@@ -374,8 +372,14 @@ Campos:
 - Correo.
 - Programa.
 - Ciudad.
+- Telefono.
+- Sobre mi.
 
 Cada campo usa `TextInput` y `useState`. Al cambiar un campo, tambien se actualiza el resumen superior del perfil.
+
+Dependencia nueva usada en esta pantalla:
+
+- `expo-image-picker`: permite pedir permisos y abrir la galeria para seleccionar imagenes.
 
 ### Configuracion
 
@@ -452,7 +456,6 @@ Cada componente tiene una responsabilidad clara:
 - `ModalDemo`: maneja el modal.
 - `CalculatorCard`: maneja la calculadora.
 - `ScrollLoadingList`: maneja la lista dinamica.
-- `NavigationDemo`: maneja la actividad de navegacion.
 - `ActionButton`: solo representa botones reutilizables.
 - `SectionCard`: solo representa tarjetas.
 - `AppShell`: solo da estructura general de pantalla.
@@ -479,7 +482,7 @@ Las props de los componentes son pequenas y especificas.
 
 Ejemplos:
 
-- `NavigationDemo` solo recibe `onOpenDetail` y `onOpenModal`.
+- `ButtonsDemo` solo recibe `onOpenDetail`.
 - `ActionButton` solo recibe lo necesario para renderizar un boton.
 - `DropdownSelect` recibe solo datos y funciones relacionadas con seleccion.
 
@@ -491,8 +494,8 @@ Algunos componentes reciben funciones desde afuera en vez de decidir todo intern
 
 Ejemplo:
 
-- `NavigationDemo` no llama directamente a `router.push()`.
-- Recibe `onOpenDetail` y `onOpenModal` desde `HomeScreen`.
+- `ButtonsDemo` no llama directamente a `router.push()`.
+- Recibe `onOpenDetail` desde `HomeScreen`.
 
 Esto hace que el componente dependa de una funcion externa, no de una implementacion fija.
 
@@ -511,13 +514,32 @@ El proyecto aplica varias buenas practicas:
 - Uso de `SafeAreaView` para evitar recortes en dispositivos.
 - Documentacion dentro del codigo con comentarios por apartados.
 
-## 14. Explicacion corta para exponer
+## 14. Puntos de mejora y verificacion
+
+Para una entrega mas completa del proyecto, se deben revisar los siguientes puntos:
+
+- Mejorar la organizacion general y la calidad del codigo.
+- Mantener una arquitectura clara, consistente y facil de explicar.
+- Verificar el funcionamiento del selector `Dropdown` o `Picker`, especialmente en iOS.
+- Completar los sistemas de navegacion requeridos segun el alcance del proyecto: Drawer, Stack y Bottom Navigation.
+- Implementar, revisar o corregir el funcionamiento del Scroll Loading.
+- Fortalecer la explicacion tecnica y la sustentacion del proyecto.
+- Revisar el estado de Git y corregir posibles problemas de versionamiento.
+- Verificar dependencias y compatibilidad para que el proyecto funcione correctamente en otros equipos.
+- Corregir problemas de interfaz y experiencia de usuario.
+- Ajustar la interfaz para evitar que el teclado oculte campos o botones importantes.
+- Mantener una estructura de archivos ordenada por responsabilidades.
+- Eliminar componentes, propiedades o elementos deprecados.
+- Revisar los proyectos o apartados que no fueron presentados y preparar una nueva entrega si aplica.
+- Subir nuevamente las correcciones en el medio solicitado.
+
+## 15. Explicacion corta para exponer
 
 Una explicacion sencilla seria:
 
 > La aplicacion fue construida con Expo, React Native y Expo Router. Se uso una arquitectura basada en componentes, separando pantallas, actividades, componentes reutilizables, constantes y contexto global. La navegacion combina Stack, Bottom Tabs y un drawer lateral hecho con Modal. Tambien se implemento una configuracion funcional que cambia el idioma y el tema claro u oscuro en toda la app. Se aplican buenas practicas como separacion de responsabilidades, reutilizacion de componentes y manejo de estado local y global.
 
-## 15. Conclusion
+## 16. Conclusion
 
 El proyecto demuestra una base completa de React Native con Expo.
 
